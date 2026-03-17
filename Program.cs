@@ -2,6 +2,7 @@ using ConsultorioApi.Data;
 using ConsultorioApi.Models;
 using ConsultorioApi.Services;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ConsultorioApi.Services.CpfService>();
 builder.Services.AddScoped<ConsultorioApi.Services.EmailService>();
+builder.Services.AddHttpClient<ViaCepService>();
 
 
 
@@ -28,14 +30,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-
-
-    app.UseSwaggerUI(options =>
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
     {
-        options.RoutePrefix = "swagger";
+        options.WithTitle("Api Consultório")
+        .WithTheme(ScalarTheme.DeepSpace);
     });
-
 }
 
 app.UseHttpsRedirection();
