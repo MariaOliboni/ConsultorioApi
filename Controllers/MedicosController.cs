@@ -1,4 +1,5 @@
 ﻿using ConsultorioApi.Data;
+using ConsultorioApi.DTOs;
 using ConsultorioApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,14 +26,25 @@ namespace ConsultorioApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Medico>>> GetMedico(int id)
+        public async Task<ActionResult<MedicoResponseDto>> GetMedico(int id)
         {
             var medico = await _context.Medicos.Include(m => m.Consultorio).FirstOrDefaultAsync(m => m.Id == id);
-            if (medico == null) NotFound();
-            return Ok(medico);
+            
+            if (medico == null) return NotFound("Médico não encontrado");
+            var medicoDto = new MedicoResponseDto
+            {
+                Id = medico.Id,
+                Nome = medico.Nome,
+                Crm = medico.Crm,
+                ConsultorioId = medico.ConsultorioId,
+                ConsultorioNome = medico.Consultorio!= null ? medico.Consultorio.Nome :" Consultorio não existe"
+            };
+
+
+            return Ok(medicoDto);
         }
 
-        [HttpPost]
+            [HttpPost]
         public async Task<ActionResult<Medico>> PostMedico(Medico medico)
         {
             var consultorio = await _context.Consultorios.FindAsync(medico.ConsultorioId);
